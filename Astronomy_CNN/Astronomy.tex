@@ -1,0 +1,37 @@
+\input{../header.tex}
+
+\setlength{\parindent}{0em}
+
+\begin{document}
+
+\subsection{Implementation}
+First, after importing every required module, I started downloading the \textit{galah4-spectra.npy} and \textit{galah4-labels.npy} files with the help of the given code.
+To avoid repeated downloads due to their file size, I loaded the data from the files exactly in the next step.\\
+To visualize the data and improve the understanding of the data that is used, I plotted the spectra of the first ten samples. 
+
+The next part consisted of preparing the data in order to use them within the CNN. I first defined the \textit{device} to a \textit{Cuda-GPU} and an alternate \textit{CPU} if \textit{Cuda} is not available.
+This ensures compatibility across different hardware setups (\textit{Cuda-GPUs} and \textit{non-Cuda-GPUs}).\\
+The Dataset also needs to be preprocessed. This is done by applying a logarithmic transformation to the spectra data and normalizing the labels data.
+This reduces the large dynamic range of the flux spectra, as well as the difference in the order of magnitude for the labels ($T\_\text{eff}, \text{log\_g}$ and $\text{fe\_h}$).
+By preprocessing this data the training becomes more stabilize, and the loss will be decreased further.
+
+For the CNN I added two blocks of \textit{Conv1D - ReLU-activation - MaxPool1D}, connected by a Dropout layer.
+The main idea is to have multiple blocks (here just two, to make it trainable on private computation resources), which increase the number of feature maps, allowing the network to learn more complex representations of the given data.
+For the loss function, I chose an MSE loss, since the galah4 dataset is a regression problem.
+
+\subsection{Results}
+For the performance I chose 50 epochs, which each took around 20-30 seconds each at a \textit{AMD Ryzen 7 7735U}-CPU, which is therefore quite short.
+For the loss values we achieved a final value of
+\begin{align*}
+  \text{loss\_training, final} &= 0.7322\\
+  \text{loss\_validation, final} &= 0.7578\\
+  \text{loss\_test} &= 0.8165.
+\end{align*}
+The loss values are constantly decreasing for the training, but increasing and oscillating for the validation after the 20th epoch.
+This indicates an overfitting, which may be due to an excessive CNN (too deep or too many epochs) for the given dataset.
+
+\subsection{Problems and Improvements}
+Problems that occurred with this CNN is the overfitting, which be resolved by the implementation of an early stopping.
+To decrease the loss further and improve the CNN, an adaptive learning rate could also be added in combination with early stopping (e.g. Early stopping only applying after change in learning rate).
+Additional loss functions (such as the RMSE or MAE) could improve the performance just by changing the loss function.
+\end{document}
