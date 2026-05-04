@@ -1,3 +1,5 @@
 runs/
 data/
 build/
+
+.ipynb_checkpoints/
