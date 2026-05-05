@@ -1,0 +1,54 @@
+\input{../header.tex}
+
+\setlength{\parindent}{0em}
+
+\begin{document}
+
+\subsection{Implementation}
+For the implementation of the NLL of the galah4-dataset, the same CNN network is used as in the solution from the last exercise.
+
+The CNN increases the amount of feature maps from 1 \rightarrow 10 \rightarrow 20 \rightarrow 40 in order to achieve a deeper network, which is able to learn more complex structures in the spectrum.
+After that, the features maps are compressed from a size of 40 \rightarrow 10 \rightarrow 12 \rightarrow 10, resulting in a more compact representation of the network.
+In the end, the \textit{Linear}-layers are converting the features into the six \textit{Output}-neurons, representing the three labels ($T_\text{eff}, \log(g)$ and $\text{fe\_h}$) and their respective uncertainty.
+
+For the dataset and training I used the following parameters \textit{num\_epochs} = 100 (which were not used due to early stopping), \textit{learning\_rate} = $2e-4$ and \textit{batch\_size} = 32.
+
+\subsection{Results}
+After 34 epochs, the early stopping triggered, resulting in losses of:
+\begin{align*}
+  \text{best\_train\_loss} &= -2.1988 (\text{in epoch 33/34})\\
+  \text{best\_val\_loss} &= -2.3931 (\text{in epoch 24/34})\\
+  \text{test\_loss} &= -2.2870
+\end{align*}
+The training loss is constantly decreasing, while the validation loss is globally decreasing, but locally oscillating. This behavior is normal and may be due to stochastic uncertainties.
+Since the NLL is using a loss function of
+\begin{equation}
+  \nonumber
+  \frac{1}{2} \left(\frac{y_i - \mu_i}{\sigma_i}\right)^2 + \log{\sigma_i},
+\end{equation}
+negative loss values are possible if $\sigma < 1$ due to the logarithmic term of $\log{\sigma}$ part.
+Therefore, the loss values are as expected and show a good training on a CNN network with the use of early stopping.
+
+To validate the predicted uncertainties, a pull distribution is performed. For the different labels the following mean values $\mu$ and standard deviations $\sigma$ were calculated:
+\begin{align*}
+  T_\text{eff} &: \mu = -0.103 &  \sigma = 0.686\\
+  \log(g) &: \mu = -0.208 & \sigma = 0.822\\
+  \text{fe\_h} &: \mu = -0.466 & \sigma = 0.497
+\end{align*}
+For very good predicted uncertainties, we expect values of a normal distribution with $\mu = 0$ and $\sigma = 1$.
+All three labels have slightly shifted mean values towards the negative area. This means, that the network on average underpredicts the labels.
+For the mean value the uncertainty prediction is best for the label of $T_\text{eff}$, then $\log(g)$ and lowest for the $\text{fe\_h}$.
+The standard deviation on the other hand is too low in all three cases with $\log(g)$ being the closest to $\sigma=1$, followed by $T_\text{eff}$ and $\text{fe\_h}$.
+Therefore, the model overestimated the uncertainty for all labels, which could be decreased by a better network/training.
+
+Even though in some applications (e.g the safety regulations for the engine lifetime from last semester) a too conservative uncertainty is better than one being too small,
+the network should aim to reach the expected distribution parameters $\mu, \sigma$.
+
+\subsection{Problems and Improvements}
+The biggest problem in this training is the instability of the standard deviation prediction $\sigma$. Due to the logarithmic part, the loss is especially sensitive to the standard deviation $\sigma$.
+Training and optimizing hyperparameters become way harder, since slight changes in these parameters can have huge impacts to the loss function.
+While the loss values of the validation and test seem quite good, the distribution parameters $\mu$ and $\sigma$ can still be improved for all three labels.
+Some possibilities for improvement could be an adaptive \textit{learning\_rate}, which automatically changes the \textit{learning\_rate} if it isn't decreasing in a given \textit{patience}.
+Another possibility lies in a grid search to optimize the hyperparameters. But since the hyperparameters are extremely sensitive in this case, this would require way more computational resources.
+Since the used CNN achieved quite good results in the sole predictions of the three labels, I don't think, that a change in the network structure would improve the distribution parameters.
+\end{document}
