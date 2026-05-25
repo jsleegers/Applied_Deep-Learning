@@ -1,0 +1,55 @@
+\input{../header.tex}
+
+\setlength{\parindent}{0em}
+
+\begin{document}
+
+\subsection{Implementation}
+For the implementation of a Graph Neural Network (\textit{GNN}) for the new \textit{IceCube} dataset, a small \textit{MLP} consisting of dense layers is used.
+It consists of two of these layers (\textit{nn.Linear()}) with a number of features from \textit{in\_features} \rightarrow 64 \rightarrow \textit{out\_features}.
+The amount of input features for the first layer needs to be twice the amount of data features in order to concatenate the features of each node with the features of its neighbors (data \rightarrow data + neighborhood).
+The number of output features for the second (or last) layer needs to be the number of labels we want to extract.
+In case of the \textit{IceCube} dataset, this results in a number of features from 6 \rightarrow 64 \rightarrow 2, but to generalize the code, both values were given as parameters.
+
+For the dataset and training I used the following parameters \textit{num\_epochs} = 100 (which were not used due to early stopping), \textit{learning\_rate} = $0.002$ and \textit{batch\_size} = 32.
+The training was also performed for different amounts of neighbors $k$ in order to analyze its influence.
+
+\subsection{Results}
+The training was performed for $k \in \{3, 5, 8, 12, 20\}$ and based on the validation loss, $k = 8$ performed the best. So for the evaluation (except the loss values which are compared later on) this $k$-value and its \textit{best\_model} were chosen.
+After 33 epochs, the early stopping triggered, resulting in losses of:
+\begin{align*}
+  \text{best\_train\_loss} &= 0.0671 (\text{in epoch 33/33})\\
+  \text{best\_val\_loss} &= 0.0850 (\text{in epoch 23/33})\\
+  \text{test\_loss} &= 0.1928
+\end{align*}
+
+The training loss is constantly decreasing, while the validation loss is globally decreasing, but slightly oscillating locally. 
+This behavior is normal and shows a good training with no strong overfitting due to \textit{early\_stopping}.
+The higher test loss, compared to the validation loss, might indicate that the model generalizes worse to unseen test data.
+
+Calculating the distance error from the predicted and the true positions with
+\begin{equation}
+  \nonumber
+  \sqrt{\left(x_\text{pred} - x_\text{true}\right)^2 + \left(y_\text{pred} - y_\text{true}\right)^2}
+\end{equation}
+results in a distribution (Figure\_4 in the notebook) with a mean value of $\mu = 2.306$ and standard deviation of $\sigma = 2.062$. 
+This indicates that the accuracy varies significantly between events.
+Considering the scatter plots of predicted and true position (Figure\_3) a strong bias, especially along the x-axis, is visible.
+This can also be confirmed by the scatter plot in Figure\_2, where most predicted positions are smaller than their true counterpart along the x-axis.
+So, even though the loss values (for training and validation) are decreasing, the used network still can be further improved.
+
+The importance of the amount of neighbors considered in the training can be analyzed by taking a deeper look into the loss values of different $k$-values (Figure\_1).
+While the loss value for $k=3$ is constantly slightly higher than the others, the $k$-values of $k \in \{5, 8, 12, 20\}$ result in almost the same loss values.
+This indicates that intermediate neighborhood sizes (or in this case $k=8$) result in the best tradeoff between local and global information.
+
+\subsection{Problems and Improvements}
+The largest limitation of the current model is by far the bias of the x-coordinate. 
+The relatively small \textit{MLP} consists of only two dense layers (\textit{nn.Linear()}) with an activation function between them and
+additionally, the \textit{GNN} model uses only two dynamic edge convolution layers. 
+Therefore, the performance and predictions might be limited by this model capacity.
+An increase in the amount of these layers or a deeper network in general could improve the accuracy of the event positions 
+or at least solve the problem with the strong bias within the x-coordinate.
+A change in hyperparameters, such as the \textit{learning\_rate} could also improve the results, but not as strong as the improvements of the \textit{MLP} and \textit{GNN} architecture.
+\end{document}
+
+
