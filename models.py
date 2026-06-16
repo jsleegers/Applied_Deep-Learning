@@ -183,3 +183,21 @@ class GNN_MLP(nn.Module):
     def forward(self, x):
         x = self.model(x)
         return x
+
+class Diffusion_MLP(nn.Module):
+    def __init__(self, in_features, out_features):
+        super(Diffusion_MLP, self).__init__()
+
+        self.model = nn.Sequential(
+            nn.Linear(in_features = in_features, out_features = 32),
+			nn.ReLU(),
+			nn.Linear(32, 64),
+			nn.ReLU(),
+			nn.Linear(64, 32),
+			nn.ReLU(),
+			nn.Linear(32, out_features)
+        )
+
+    def forward(self, x):
+        x = self.model(x)
+        return x

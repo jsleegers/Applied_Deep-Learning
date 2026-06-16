@@ -1,0 +1,61 @@
+\input{../header.tex}
+
+\setlength{\parindent}{0em}
+
+\begin{document}
+
+\subsection{Implementation}
+For the implementation of the Simple Diffusion network, a small \textit{MLP} consisting of dense layers is used. 
+It consists of two of these layers (\textit{nn.Linear()}) with a number of features from $2 \rightarrow 128 \rightarrow 128 \rightarrow 1$.
+The amount of input neurons ($N = 2$) is put together from the time step $t_i \in \{i = 1, ..., N\}$ of the denoising algorithm.
+The output neuron ($N = 1$) represents the new sample $x_t$ from the time step $t$.
+
+For the dataset random values from a bimodal distribution with mean values of $\mu_1 = -4, \mu_2 = 4$ and standard deviations of $\sigma_1 = \sigma_2 = 1$ were drawn.
+Additionally, the peak corresponding to $\mu_2 = 4$ has twice as many values as its counterpart.
+
+The training with the given dataset and \textit{MLP} network is performed with the following parameters: 
+\textit{num\_epochs} = 1000, \textit{learning\_rate} = 0.0008 and \textit{batch\_size} = 64.
+Additionally, 250 time steps were used for the denoising algorithm.
+
+\subsection{Results}
+The first result comes from the loss values, which are calculated via the Mean Squared Error (MSE)
+$$
+\nonumber
+\text{loss} = \text{MSE} = \frac{1}{N} \sum_{i=1}^{N}\left(\epsilon - \epsilon_\theta\right)^2
+$$
+with $\epsilon$ being the true value and $\epsilon_\theta$ as the prediction from the \textit{MLP}.
+
+In this case, the training and validation losses are both decreasing very quickly with the best losses of
+\begin{align*}
+  \text{best\_train\_loss} &= 0.3812 (\text{in epoch 481/1000})\\
+  \text{best\_val\_loss} &= 0.3142 (\text{in epoch 494/1000}).
+\end{align*}
+The progress of the losses and their rapid convergence (plotted within the .ipynb-file) suggest that the \textit{MLP} may be over-parameterized for such a small problem.
+This can be seen by the training and validation loss, since both have already stabilized after around 50 epochs.
+
+In addition, this over-parameterization is visible in the distribution itself.
+Firstly, the distribution in the 0-th epoch is still normal distributed and does not follow the wanted bimodal distribution in the slightest.
+But after 100 epochs, the distribution already has parameters of
+\begin{align*}
+  \mu_1 &= -4.064 & \sigma_1 = 0.886\\
+  \mu_2 &= 3.984 & \sigma_2 = 0.859,
+\end{align*}
+showing a slightly narrower distribution than expected ($\sigma < 1$). Distributions are shown for every 100 epochs within the .ipynb-file.
+
+The last important result lies within the visualization of the distribution with respect to the time steps $t_i$ (Also shown in the .ipynb-file below each distribution plots).
+The initial normal distribution is transforming more and more into the bimodal distribution that is expected.
+While the quality is continuously increasing, the 'final' distribution is already recognizable after the 150-th time step. 
+But only after the 200-th both peaks are clearly separated.
+
+\subsection{Problems and Improvements}
+While the epochs are way to many for this specific problem, this might be due to the fact, that the generation of single values is by far the simplest diffusion model to implement.
+Considering pictures with multiple hundred pixels, a longer training might be necessary for a good image quality.
+But since were are comparing distributions, an \textit{early\_stopping} could be implemented to solve this problem.
+
+The over-parameterization is no problem in this specific case.
+The training of the entire 1000 epochs lasted merely 149 seconds and no overfitting is visible.
+On the other side, a more efficient \textit{MLP} should be implemented at all times. For diffusion models, the training and therefore the required time
+may rapidly increase for more complex datasets like entire images.
+
+And again, an adaptive \textit{learning\_rate} and a hyperparameter optimization would improve the losses and the quality of the single value distribution.
+\end{document}
