@@ -5,19 +5,19 @@
 \begin{document}
 
 \subsection{Implementation}
-For the implementation of the \textit{MNIST} Diffusion network, the "Denoising-Diffusion Pytorch" library ('https://github.com/lucidrains/denoising-diffusion-pytorch') was used.
+For the implementation of the \textit{MNIST} Diffusion network, the 'Denoising-Diffusion Pytorch' library ('https://github.com/lucidrains/denoising-diffusion-pytorch') was used.
 It provides a predefined \textit{U-Net} architecture, where the base dimension (\texttt{DIM}) and their multiplication for every hidden layer (\texttt{DIM\_MULTS}) need to be defined.
-In the case of this exercise, the features of the \textit{U-Net} went from $1 \rightarrow 32 \rightarrow 64 \rightarrow 160$ for the Downsampling and $160 \rightarrow 64 \rightarrow 32 \rightarrow 1$ for the Upsampling.
+In the case of this exercise, the amount of features of the \textit{U-Net} went from $1 \rightarrow 32 \rightarrow 64 \rightarrow 160$ for the Downsampling and $160 \rightarrow 64 \rightarrow 32 \rightarrow 1$ for the Upsampling.
 Besides the entire \textit{U-Net} architecture, an additional class \texttt{diffusion} was given, containing the entire \textbf{Training} and \textbf{Sampling} algorithm, making the framework of the training and validation more compact than in the \textit{Simple Diffusion} exercise.
 
-For the dataset and training I used the following parameters \texttt{num\_epochs} = 100 (not used due to the huge computational cost), \texttt{learning\_rate} = $0.0004$ and \texttt{batch\_size} = 128.
+For the dataset and training I used the following parameters: \texttt{num\_epochs} = 100 (not used due to the huge computational cost), \texttt{learning\_rate} = $0.0004$ and \texttt{batch\_size} = 128.
 Additional parameters for the \textit{U-Net} architecture and \texttt{diffusion} class were given with:
 \begin{itemize}
-  \item \texttt{IMAGE\_SIZE} = 28\
-  describing the amount of pixels per row/columns in the \textit{MNIST} dataset 
-  \item \texttt{TIME\_STEPS} = 1000\
+  \item \texttt{IMAGE\_SIZE} = 28\\
+  describing the amount of pixels per row/column in the \textit{MNIST} dataset 
+  \item \texttt{TIME\_STEPS} = 1000\\
   The amount of time steps in the algorithm for the training
-  \item \texttt{SAMPLING\_TIMESTEPS}\
+  \item \texttt{SAMPLING\_TIMESTEPS}\\
   The amount of time steps in the algorithm for the sampling
   \item \texttt{DIM} = 32 and \texttt{DIM\_MULTS} = (1, 2, 5)
 \end{itemize}
