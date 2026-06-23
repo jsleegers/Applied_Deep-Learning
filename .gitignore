@@ -2,6 +2,8 @@ runs/
 data/
 build/
 /__pycache__
+dataset/
+checkpoints/
 
 .ipynb_checkpoints/
 mlruns/
